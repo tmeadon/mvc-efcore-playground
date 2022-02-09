@@ -1,26 +1,26 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using TestApp.Data;
 using TestApp.Models;
 
 namespace TestApp.Pages.Instructors
 {
-    public class CreateModel : PageModel
+    public class CreateModel : InstructorCoursesPageModel
     {
-        private readonly TestApp.Data.SchoolContext _context;
+        private readonly SchoolContext _context;
+        private readonly ILogger<InstructorCoursesPageModel> _logger;
 
-        public CreateModel(TestApp.Data.SchoolContext context)
+        public CreateModel(TestApp.Data.SchoolContext context, ILogger<InstructorCoursesPageModel> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public IActionResult OnGet()
         {
+            var instructor = new Instructor();
+            instructor.Courses = new List<Course>();
+            PopulateAssignedCourseData(_context, instructor);
             return Page();
         }
 
@@ -28,17 +28,67 @@ namespace TestApp.Pages.Instructors
         public Instructor Instructor { get; set; }
 
         // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostAsync(string[] selectedCourses)
         {
-            if (!ModelState.IsValid)
+            var newInstructor = new Instructor();
+            await AddCoursesIfAnySelectedAsync(selectedCourses, newInstructor);
+
+            if (await TryAddInstructorToDatabaseAsync(newInstructor))
             {
-                return Page();
+                return RedirectToPage("./Index");
             }
 
-            _context.Instructors.Add(Instructor);
-            await _context.SaveChangesAsync();
+            PopulateAssignedCourseData(_context, newInstructor);
+            return Page();
+        }
 
-            return RedirectToPage("./Index");
+        private async Task AddCoursesIfAnySelectedAsync(string[] selectedCourses, Instructor newInstructor)
+        {
+            if (selectedCourses.Length > 0)
+            {
+                newInstructor.Courses = new List<Course>();
+                await _context.Courses.LoadAsync();
+                await AddSelectedCoursesToInstructorAsync(selectedCourses, newInstructor);
+            }
+        }
+
+        private async Task AddSelectedCoursesToInstructorAsync(string[] selectedCourses, Instructor newInstructor)
+        {
+            foreach (var course in selectedCourses)
+            {
+                var courseToAdd = await _context.Courses.FindAsync(int.Parse(course));
+
+                if (courseToAdd != null)
+                {
+                    newInstructor.Courses.Add(courseToAdd);
+                }
+                else
+                {
+                    _logger.LogWarning($"Course {course} not found");
+                }
+            }
+        }
+
+        private async Task<bool> TryAddInstructorToDatabaseAsync(Instructor newInstructor)
+        {
+            try
+            {
+                if (await TryUpdateModelAsync<Instructor>(
+                    newInstructor,
+                    "Instructor",
+                    i => i.FirstMidName, i => i.LastName, i => i.HireDate, i => i.OfficeAssignment))
+                {
+                    _context.Instructors.Add(newInstructor);
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+            }
+
+            return false;
         }
     }
 }
