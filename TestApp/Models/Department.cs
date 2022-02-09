@@ -14,13 +14,14 @@ public class Department
     [Column(TypeName = "money")]
     public decimal Budget { get; set; }
 
-    [DataType(DataType.Date)]
-    [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}",
-                    ApplyFormatInEditMode = true)]
-    [Display(Name = "Start Date")]
+    [DataType(DataType.Date), Display(Name = "Start Date")]
+    [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
     public DateTime StartDate { get; set; }
 
     public int? InstructorID { get; set; }
+
+    [Timestamp]
+    public byte[] ConcurrencyToken { get; set; }
 
     public Instructor Administrator { get; set; }
     public ICollection<Course> Courses { get; set; }
