@@ -10,7 +10,7 @@ public class AzureAdInterceptor : DbConnectionInterceptor
 {
     private static readonly string[] _azureSqlScopes = new[]
     {
-        "https://database.windows.new//.default"
+        "https://database.windows.net//.default"
     };
 
     private TokenRequestContext _azureSqlTokenRequestContext => new TokenRequestContext(_azureSqlScopes);
