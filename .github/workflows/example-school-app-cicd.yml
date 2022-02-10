@@ -100,8 +100,8 @@ jobs:
       - name: migrate db schema
         run: |
           pwd
-          mv ./artifacts/ExampleSchoolAppMigrations/efbundle ./ExampleSchoolApp
-          cd ./ExampleSchoolApp
+          mv ./artifacts/ExampleSchoolAppMigrations/efbundle ./ExampleSchoolApp/ExampleSchoolApp
+          cd ./ExampleSchoolApp/ExampleSchoolApp
           pwd
           ls
           chmod +x efbundle
