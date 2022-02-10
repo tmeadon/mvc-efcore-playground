@@ -94,8 +94,7 @@ jobs:
 
       - name: migrate db schema
         run: |
-          connectionString="Data Source=${{ needs.provision.outputs.sqlServerHostname }};Database=SchoolContext;MultipleActiveResultSets=true;"\
-            "User ID=${{ secrets.SQL_ADMIN_USERNAME }};Password=${{ secrets.SQL_ADMIN_PASSWORD }}"
+          connectionString="Data Source=${{ needs.provision.outputs.sqlServerHostname }};Database=SchoolContext;MultipleActiveResultSets=true;User ID=${{ secrets.SQL_ADMIN_USERNAME }};Password=${{ secrets.SQL_ADMIN_PASSWORD }}"
           chmod +x ./ExampleSchoolAppMigrations/efbundle
           ./ExampleSchoolAppMigrations/efbundle --connection $connectionString
 
