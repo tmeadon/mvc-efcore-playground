@@ -1,7 +1,7 @@
 targetScope = 'subscription'
 
-param baseName string = 'ExampleSchoolApp'
-param location string = 'uksouth'
+param baseName string = 'example-school-app'
+param location string = 'northeurope'
 param sqlAdminPassword string
 
 @secure()
