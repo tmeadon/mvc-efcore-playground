@@ -27,8 +27,8 @@ module sql 'sql.bicep' = {
   params: {
     baseName: baseName
     location: location
-    sqlAdminPassword: sqlAdminUsername
-    sqlAdminUsername: sqlAdminPassword
+    sqlAdminPassword: sqlAdminPassword
+    sqlAdminUsername: sqlAdminUsername
   }
 }
 
