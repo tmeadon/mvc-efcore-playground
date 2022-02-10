@@ -7,7 +7,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 
 builder.Services.AddDbContext<SchoolContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SchoolContext")));
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SchoolContext"));
+    options.AddInterceptors(new AzureAdInterceptor());
+});
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 

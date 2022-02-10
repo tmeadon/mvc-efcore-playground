@@ -10,9 +10,13 @@ var uniqueName = '${baseName}${uniqueString(resourceGroup().id)}'
 resource server 'Microsoft.Sql/servers@2021-05-01-preview' = {
   name: uniqueName
   location: location
+  identity: {
+    type: 'SystemAssigned'
+  }
   properties: {
     administratorLogin: sqlAdminUsername
     administratorLoginPassword: sqlAdminPassword
+    publicNetworkAccess: 'Enabled'
   }
 }
 

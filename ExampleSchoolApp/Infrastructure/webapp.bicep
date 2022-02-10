@@ -44,6 +44,9 @@ resource hostingPlan 'Microsoft.Web/serverfarms@2021-02-01' = {
 resource website 'Microsoft.Web/sites@2021-02-01' = {
   name: uniqueName
   location: location
+  identity: {
+    type: 'SystemAssigned'
+  }
   properties: {
     serverFarmId: hostingPlan.id
     siteConfig: {
