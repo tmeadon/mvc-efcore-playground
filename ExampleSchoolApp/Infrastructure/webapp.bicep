@@ -64,7 +64,7 @@ resource website 'Microsoft.Web/sites@2021-02-01' = {
       connectionStrings: [
         {
           name: 'SchoolContext'
-          connectionString: 'Data Source=${sqlServer.properties.fullyQualifiedDomainName}:1433;Database=${schoolContextDb.name};MultipleActiveResultSets=true;'
+          connectionString: 'Data Source=${sqlServer.properties.fullyQualifiedDomainName};Database=${schoolContextDb.name};MultipleActiveResultSets=true;'
           type: 'SQLAzure'
         }
       ]
