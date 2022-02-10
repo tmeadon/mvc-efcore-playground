@@ -96,6 +96,7 @@ jobs:
         run: |
           connectionString="Data Source=${{ needs.provision.outputs.sqlServerHostname }};Database=SchoolContext;MultipleActiveResultSets=true;\
             User ID=${{ secrets.SQL_ADMIN_USERNAME }};Password=${{ secrets.SQL_ADMIN_PASSWORD }}"
+          chmod +x ./ExampleSchoolApp/efbundle
           ./ExampleSchoolAppMigrations/efbundle --connection $connectionString
 
       - name: azure login
