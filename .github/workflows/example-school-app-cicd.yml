@@ -99,7 +99,8 @@ jobs:
 
       - name: migrate db schema
         run: |
-          mv ./artifacts/ExampleSchoolAppMigrations/efbundle .
+          mv ./artifacts/ExampleSchoolAppMigrations/efbundle ./ExampleSchoolApp
+          cd ./ExampleSchoolApp
           chmod +x efbundle
           connectionString="Data Source=${{ needs.provision.outputs.sqlServerHostname }};Database=SchoolContext;MultipleActiveResultSets=true;User ID=${{ secrets.SQL_ADMIN_USERNAME }};Password=${{ secrets.SQL_ADMIN_PASSWORD }}"
           ./efbundle --connection "$connectionString"
