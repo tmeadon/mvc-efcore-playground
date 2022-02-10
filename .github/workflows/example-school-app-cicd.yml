@@ -1,0 +1,40 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:  
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    env:
+      PROJECT_PATH: ExampleSchoolApp/ExampleSchoolApp
+    steps:
+      - name: git checkout
+        uses: actions/checkout@v2
+        
+      - name: configure dotnet cli
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'
+
+      - name: install dependencies
+        run: dotnet restore $PROJECT_PATH/ExampleSchoolApp.csproj
+
+      - name: dotnet publish
+        run: dotnet publish --no-restore -c Release $PROJECT_PATH/ExampleSchoolApp.csproj
+
+      - name: upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ExampleSchoolApp
+          path: $PROJECT_PATH/bin/Release/net6.0/publish
+
+
+
+        
