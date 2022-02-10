@@ -29,11 +29,16 @@ jobs:
       - name: dotnet publish
         run: dotnet publish --no-restore -c Release $PROJECT_PATH/ExampleSchoolApp.csproj
 
+      - name: zip artifact
+        run: |
+          cd ${{ env.PROJECT_PATH }}/bin/Release/net6.0/publish
+          zip -r app.zip .
+
       - name: upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: ExampleSchoolApp
-          path: ${{ env.PROJECT_PATH }}/bin/Release/net6.0/publish
+          path: ${{ env.PROJECT_PATH }}/bin/Release/net6.0/publish/app.zip
 
   provision:
     runs-on: ubuntu-latest
@@ -72,10 +77,8 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: ExampleSchoolApp
-          path: app
 
-      - name: zip artifacts
-        run: zip -r ExampleSchoolApp.zip app/ExampleSchoolApp
+      - run: ls 
 
       - name: azure login
         uses: azure/login@v1
@@ -88,4 +91,4 @@ jobs:
           azcliversion: 2.30.0
           inlineScript: |
             az webapp deployment source config-zip --resource-group ${{ needs.provision.outputs.resourceGroupName }} \
-              --name ${{ needs.provision.outputs.webAppName }} --src ExampleSchoolApp.zip
+              --name ${{ needs.provision.outputs.webAppName }} --src app.zip
