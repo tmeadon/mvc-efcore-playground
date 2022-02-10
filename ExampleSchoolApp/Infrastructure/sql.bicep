@@ -35,4 +35,5 @@ resource schoolContextDb 'Microsoft.Sql/servers/databases@2021-05-01-preview' = 
 
 output serverName string = server.name
 output schoolContextDbName string = schoolContextDb.name
+output serverHostname string = server.properties.fullyQualifiedDomainName
 

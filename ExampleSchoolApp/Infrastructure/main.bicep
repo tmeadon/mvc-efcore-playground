@@ -46,3 +46,4 @@ module webApp 'webapp.bicep' = {
 
 output resourceGroupName string = rg.name
 output webAppName string = webApp.outputs.webAppName
+output sqlServerHostname string = sql.outputs.serverHostname

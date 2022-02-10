@@ -23,6 +23,9 @@ jobs:
         with:
           dotnet-version: '6.0.x'
 
+      - name: install dotnet ef tool
+        run: dotnet tool install --global dotnet-ef
+
       - name: install dependencies
         run: dotnet restore $PROJECT_PATH/ExampleSchoolApp.csproj
 
@@ -34,11 +37,20 @@ jobs:
           cd ${{ env.PROJECT_PATH }}/bin/Release/net6.0/publish
           zip -r app.zip .
 
-      - name: upload artifact
+      - name: build migration bundle
+        run: dotnet ef migrations bundle -o ./efbundle -p $PROJECT_PATH/ExampleSchoolApp.csproj
+
+      - name: upload app artifact
         uses: actions/upload-artifact@v2
         with:
           name: ExampleSchoolApp
           path: ${{ env.PROJECT_PATH }}/bin/Release/net6.0/publish/app.zip
+
+      - name: upload migrations artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ExampleSchoolAppMigrations
+          path: ./efbundle
 
   provision:
     runs-on: ubuntu-latest
@@ -46,6 +58,7 @@ jobs:
     outputs:
       resourceGroupName: ${{ steps.azure-deploy.outputs.rgName }}
       webAppName: ${{ steps.azure-deploy.outputs.webAppName }}
+      sqlServerHostname: ${{ steps.azure-deploy.outputs.sqlServerHostname }}
     steps:
       - name: git checkout
         uses: actions/checkout@v2
@@ -66,8 +79,10 @@ jobs:
               sqlAdminPassword='${{ secrets.SQL_ADMIN_PASSWORD }}')
             rgName=$(echo $deploy | jq -r '.properties.outputs.resourceGroupName.value')
             appName=$(echo $deploy | jq -r '.properties.outputs.webAppName.value')
+            sqlServerHostname=$(echo $deploy | jq -r '.properties.outputs.sqlServerHostname.value')
             echo "::set-output name=rgName::$rgName"
             echo "::set-output name=webAppName::$appName"
+            echo "::set-output name=sqlServerHostname::$sqlServerHostname"
 
   deploy:
     runs-on: ubuntu-latest
@@ -75,10 +90,14 @@ jobs:
     steps: 
       - name: download artifacts
         uses: actions/download-artifact@v2
-        with:
-          name: ExampleSchoolApp
 
       - run: ls 
+
+      - name: migrate db schema
+        run: |
+          connectionString="Data Source=${{ needs.provision.outputs.sqlServerHostname }};Database=SchoolContext;MultipleActiveResultSets=true;\
+            User ID=${{ secrets.SQL_ADMIN_USERNAME }};Password=${{ secrets.SQL_ADMIN_PASSWORD }}"
+          ./efbundle --connection $connectionString
 
       - name: azure login
         uses: azure/login@v1
