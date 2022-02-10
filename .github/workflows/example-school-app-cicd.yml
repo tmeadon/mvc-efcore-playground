@@ -102,7 +102,7 @@ jobs:
           mv ./artifacts/ExampleSchoolAppMigrations/efbundle .
           chmod +x efbundle
           connectionString="Data Source=${{ needs.provision.outputs.sqlServerHostname }};Database=SchoolContext;MultipleActiveResultSets=true;User ID=${{ secrets.SQL_ADMIN_USERNAME }};Password=${{ secrets.SQL_ADMIN_PASSWORD }}"
-          ./efbundle --connection $connectionString
+          ./efbundle --connection "$connectionString"
 
       - name: azure login
         uses: azure/login@v1
