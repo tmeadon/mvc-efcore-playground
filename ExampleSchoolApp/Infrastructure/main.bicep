@@ -12,6 +12,15 @@ resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   location: location
 }
 
+module logs 'logs.bicep' = {
+  scope: rg
+  name: 'logs'
+  params: {
+    baseName: baseName
+    location: location
+  }
+}
+
 module sql 'sql.bicep' = {
   scope: rg
   name: 'sql'
@@ -31,5 +40,6 @@ module webApp 'webapp.bicep' = {
     location: location
     schoolContextDbName: sql.outputs.schoolContextDbName
     sqlServerName: sql.outputs.serverName
+    logWorkspaceName: logs.outputs.workspaceName
   }
 }
