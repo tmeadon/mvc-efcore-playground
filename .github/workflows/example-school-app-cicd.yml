@@ -33,7 +33,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ExampleSchoolApp
-          path: ./$PROJECT_PATH/bin/Release/net6.0/publish
+          path: ${{ env.PROJECT_PATH }}/bin/Release/net6.0/publish
 
 
 
