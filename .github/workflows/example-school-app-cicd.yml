@@ -38,6 +38,9 @@ jobs:
   provision:
     runs-on: ubuntu-latest
     needs: [ build ]
+    outputs:
+      resourceGroupName: ${{ steps.azure-deploy.outputs.rgName }}
+      webAppName: ${{ steps.azure-deploy.outputs.webAppName }}
     steps:
       - name: git checkout
         uses: actions/checkout@v2
@@ -49,9 +52,40 @@ jobs:
 
       - name: deploy bicep
         uses: azure/CLI@v1
+        id: azure-deploy
         with:
           azcliversion: 2.30.0
           inlineScript: |
-            az deployment sub create -l uksouth -f ./ExampleSchoolApp/Infrastructure/main.bicep -p \
+            deploy=$(az deployment sub create -l uksouth -f ./ExampleSchoolApp/Infrastructure/main.bicep -p \
               sqlAdminUsername='${{ secrets.SQL_ADMIN_USERNAME }}' \
-              sqlAdminPassword='${{ secrets.SQL_ADMIN_PASSWORD }}' 
+              sqlAdminPassword='${{ secrets.SQL_ADMIN_PASSWORD }}')
+            rgName=$(echo $deploy | jq -r '.properties.outputs.resourceGroupName.value')
+            appName=$(echo $deploy | jq -r '.properties.outputs.webAppName.value')
+            echo "::set-output name=rgName::$rgName"
+            echo "::set-output name=webAppName::$appName"
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [ provision, build ]
+    steps: 
+      - name: download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: ExampleSchoolApp
+          path: app
+
+      - name: zip artifacts
+        run: zip -r ExampleSchoolApp.zip app/ExampleSchoolApp
+
+      - name: azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: deploy web app
+        uses: azure/CLI@v1
+        with:
+          azcliversion: 2.30.0
+          inlineScript: |
+            az webapp deployment source config-zip --resource-group ${{ needs.provision.outputs.resourceGroupName }} \
+              --name ${{ needs.provision.outputs.webAppName }} --src ExampleSchoolApp.zip

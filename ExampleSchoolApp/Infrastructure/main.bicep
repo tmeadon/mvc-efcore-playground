@@ -43,3 +43,6 @@ module webApp 'webapp.bicep' = {
     logWorkspaceName: logs.outputs.workspaceName
   }
 }
+
+output resourceGroupName string = rg.name
+output webAppName string = webApp.outputs.webAppName
