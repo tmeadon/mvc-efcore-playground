@@ -32,7 +32,8 @@ resource hostingPlan 'Microsoft.Web/serverfarms@2021-02-01' = {
   name: baseName
   location: location
   sku: {
-    name: 'D1'
+    name: 'S1'
+    tier: 'Standard'
   }
   properties: {
     reserved: true
