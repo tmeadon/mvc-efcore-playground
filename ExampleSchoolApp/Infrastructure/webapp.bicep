@@ -33,9 +33,6 @@ resource hostingPlan 'Microsoft.Web/serverfarms@2021-02-01' = {
   location: location
   sku: {
     name: 'D1'
-    skuCapacity: {
-      default: 1
-    }
   }
   properties: {
     reserved: true
