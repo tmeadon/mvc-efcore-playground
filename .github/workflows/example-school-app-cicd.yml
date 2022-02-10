@@ -87,16 +87,22 @@ jobs:
     runs-on: ubuntu-latest
     needs: [ provision, build ]
     steps: 
+      - name: git checkout
+        uses: actions/checkout@v2
+
       - name: download artifacts
         uses: actions/download-artifact@v2
+        with:
+          path: artifacts
 
       - run: ls 
 
       - name: migrate db schema
         run: |
+          mv ./artifacts/ExampleSchoolAppMigrations/efbundle .
+          chmod +x efbundle
           connectionString="Data Source=${{ needs.provision.outputs.sqlServerHostname }};Database=SchoolContext;MultipleActiveResultSets=true;User ID=${{ secrets.SQL_ADMIN_USERNAME }};Password=${{ secrets.SQL_ADMIN_PASSWORD }}"
-          chmod +x ./ExampleSchoolAppMigrations/efbundle
-          ./ExampleSchoolAppMigrations/efbundle --connection $connectionString
+          ./efbundle --connection $connectionString
 
       - name: azure login
         uses: azure/login@v1
